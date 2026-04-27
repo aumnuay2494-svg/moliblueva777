@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 精灵宠物世界 V2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<!-- 导航 -->
+<nav class="navbar">
+    <div class="nav-brand" onclick="showPage('home')">
+        <span class="brand-icon">🌟</span>
+        <span class="brand-text">精灵宠物世界</span>
+    </div>
+    <div class="nav-links">
+        <button class="nav-btn active" data-page="home" onclick="showPage('home')">🏠 首页</button>
+        <button class="nav-btn" data-page="explore" onclick="showPage('explore')">🔮 探索</button>
+        <button class="nav-btn" data-page="mypets" onclick="showPage('mypets')">💖 仓库 <span class="badge" id="petCount">0</span></button>
+        <button class="nav-btn" data-page="merge" onclick="showPage('merge')">⚗️ 融合</button>
+        <button class="nav-btn" data-page="tower" onclick="showPage('tower')">⚔️ 冒险塔</button>
+        <button class="nav-btn" data-page="shop" onclick="showPage('shop')">🏪 商店</button>
+        <button class="nav-btn" data-page="settings" onclick="showPage('settings')">⚙️ 设置</button>
+    </div>
+    <div class="nav-gold">💰 <span id="goldDisplay">0</span></div>
+</nav>
+
+<!-- ===== 首页 ===== -->
+<section id="page-home" class="page active">
+    <div class="hero">
+        <div class="hero-content">
+            <h1 class="glow-text">✨ 精灵宠物世界 ✨</h1>
+            <p class="hero-sub">在魔法大陆上探索、领养、培养你独一无二的精灵伙伴</p>
+            <p class="hero-desc">每只精灵都拥有独特的外表 · 五阶进化华丽变身 · 同类融合异种杂交 · 挑战冒险塔</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary btn-lg pulse-btn" onclick="showPage('explore')">🔮 开始探索</button>
+                <button class="btn btn-secondary btn-lg" onclick="showPage('tower')">⚔️ 冒险塔</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item"><span class="stat-num" id="hsDiscovered">0</span><span class="stat-label">已发现</span></div>
+                <div class="stat-item"><span class="stat-num" id="hsAdopted">0</span><span class="stat-label">已领养</span></div>
+                <div class="stat-item"><span class="stat-num" id="hsTower">1</span><span class="stat-label">塔层</span></div>
+                <div class="stat-item"><span class="stat-num" id="hsGold">0</span><span class="stat-label">金币</span></div>
+            </div>
+        </div>
+        <div class="hero-preview">
+            <div class="float-pet fp1" id="hp1"></div>
+            <div class="float-pet fp2" id="hp2"></div>
+            <div class="float-pet fp3" id="hp3"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 探索 ===== -->
+<section id="page-explore" class="page">
+    <div class="page-header">
+        <h2>🔮 探索野外精灵</h2>
+        <p>走进魔法草丛，遇见独一无二的精灵！每次探索消耗 <strong>10 💰</strong></p>
+    </div>
+    <div class="explore-controls">
+        <button class="btn btn-primary btn-lg" onclick="doExplore()">🌿 走进草丛!</button>
+        <button class="btn btn-secondary btn-lg" onclick="doExploreMulti()">🌟 批量探索 ×6 (50💰)</button>
+    </div>
+    <div id="encounterArea" class="hidden">
+        <div class="encounter-card">
+            <div class="encounter-header"><span class="wild-badge">⚡ 野生精灵出现!</span></div>
+            <div class="spirit-img-wrap">
+                <div class="loading-spinner" id="encLoad"><div class="spinner"></div><p>精灵现身中...</p></div>
+                <img id="encImg" class="spirit-img" onload="this.classList.add('loaded');document.getElementById('encLoad').classList.add('hidden')">
+                <div class="stage-badge" id="encStage"></div>
+            </div>
+            <div class="spirit-info" id="encInfo"></div>
+            <div class="encounter-actions">
+                <button class="btn btn-adopt btn-lg" onclick="adoptCurrent()">💖 领养!</button>
+                <button class="btn btn-secondary" onclick="doExplore()">👋 下一只</button>
+            </div>
+        </div>
+    </div>
+    <div id="multiArea" class="hidden">
+        <h3 style="text-align:center;margin:1rem 0">🌟 发现了一群精灵!</h3>
+        <div class="card-grid" id="multiGrid"></div>
+    </div>
+</section>
+
+<!-- ===== 仓库 ===== -->
+<section id="page-mypets" class="page">
+    <div class="page-header">
+        <h2>💖 我的精灵仓库</h2>
+        <p>照顾你的精灵,升级它们解锁华丽进化形态!</p>
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterPets('all',this)">全部</button>
+            <button class="filter-btn" onclick="filterPets('fire',this)">🔥火</button>
+            <button class="filter-btn" onclick="filterPets('water',this)">💧水</button>
+            <button class="filter-btn" onclick="filterPets('grass',this)">🌿草</button>
+            <button class="filter-btn" onclick="filterPets('electric',this)">⚡电</button>
+            <button class="filter-btn" onclick="filterPets('ice',this)">❄️冰</button>
+            <button class="filter-btn" onclick="filterPets('dark',this)">🌑暗</button>
+            <button class="filter-btn" onclick="filterPets('light',this)">☀️光</button>
+            <button class="filter-btn" onclick="filterPets('dragon',this)">🐉龙</button>
+        </div>
+    </div>
+    <div id="noPets" class="empty-state">
+        <div class="empty-icon">🥺</div>
+        <h3>还没有精灵伙伴</h3>
+        <button class="btn btn-primary" onclick="showPage('explore')">去探索</button>
+    </div>
+    <div class="card-grid" id="petsGrid"></div>
+</section>
+
+<!-- ===== 融合室 ===== -->
+<section id="page-merge" class="page">
+    <div class="page-header">
+        <h2>⚗️ 精灵融合室</h2>
+        <p>选择两只 <strong>Lv.5+</strong> 的精灵进行融合！同种融合进阶，异种融合杂交出全新物种！</p>
+        <p class="hint">融合消耗 <strong>200💰</strong>，成功后原精灵消失，获得更强的新精灵 + 奖励 <strong>150💰</strong></p>
+    </div>
+    <div class="merge-slots">
+        <div class="merge-slot" id="mergeSlot1" onclick="openMergeSelect(1)">
+            <div class="merge-placeholder">点击选择精灵 1</div>
+        </div>
+        <div class="merge-icon">⚡<br>融合</div>
+        <div class="merge-slot" id="mergeSlot2" onclick="openMergeSelect(2)">
+            <div class="merge-placeholder">点击选择精灵 2</div>
+        </div>
+    </div>
+    <div class="merge-arrow">⬇️</div>
+    <div class="merge-result" id="mergeResult">
+        <div class="merge-placeholder">融合结果将在这里显示</div>
+    </div>
+    <button class="btn btn-primary btn-lg" id="mergeBtn" onclick="doMerge()" disabled style="display:block;margin:1.5rem auto">
+        ⚗️ 开始融合 (200💰)
+    </button>
+    <!-- 选择弹窗 -->
+    <div id="mergeSelectModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeMergeSelect()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeMergeSelect()">✕</button>
+            <h3>选择精灵 (Lv.5+)</h3>
+            <div class="card-grid" id="mergeSelectGrid"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 冒险塔 ===== -->
+<section id="page-tower" class="page">
+    <div class="page-header">
+        <h2>⚔️ 冒险塔</h2>
+        <p>选择精灵挑战冒险塔！越高层怪物越强，奖励越丰厚！</p>
+        <p>当前最高层: <strong id="towerMax">1</strong> | 当前挑战: <strong>第 <span id="towerCur">1</span> 层</strong></p>
+    </div>
+    <!-- 选择出战精灵 -->
+    <div id="towerSelect">
+        <h3 style="text-align:center;margin-bottom:1rem">选择出战精灵</h3>
+        <div class="card-grid" id="towerSelectGrid"></div>
+    </div>
+    <!-- 战斗场景 -->
+    <div id="battleScene" class="hidden">
+        <div class="battle-floor-label">第 <span id="battleFloor">1</span> 层</div>
+        <div class="battle-arena">
+            <div class="battle-side pet-side">
+                <div class="battle-name" id="battlePetName">我的精灵</div>
+                <div class="battle-hp-bar"><div class="battle-hp-fill pet-hp" id="battlePetHP"></div></div>
+                <div class="battle-hp-text" id="battlePetHPText">100/100</div>
+                <div class="battle-sprite" id="battlePetSprite">
+                    <img id="battlePetImg" alt="">
+                </div>
+                <div class="battle-stats-row" id="battlePetStats"></div>
+            </div>
+            <div class="battle-vs">⚔️</div>
+            <div class="battle-side enemy-side">
+                <div class="battle-name" id="battleEnemyName">敌人</div>
+                <div class="battle-hp-bar"><div class="battle-hp-fill enemy-hp" id="battleEnemyHP"></div></div>
+                <div class="battle-hp-text" id="battleEnemyHPText">100/100</div>
+                <div class="battle-sprite" id="battleEnemySprite">
+                    <img id="battleEnemyImg" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="battle-log" id="battleLog"></div>
+        <div class="battle-actions" id="battleActions">
+            <button class="btn btn-primary" onclick="battleAttack()">⚔️ 攻击</button>
+            <button class="btn btn-secondary" onclick="battleSkill()">✨ 技能</button>
+            <button class="btn btn-danger" onclick="battleFlee()">🏃 逃跑</button>
+        </div>
+        <div class="battle-result hidden" id="battleResult">
+            <h2 id="battleResultTitle"></h2>
+            <p id="battleResultMsg"></p>
+            <button class="btn btn-primary" id="battleResultBtn" onclick="battleNext()">继续</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 商店 ===== -->
+<section id="page-shop" class="page">
+    <div class="page-header">
+        <h2>🏪 精灵商店</h2>
+        <p>购买食物、药品和特殊道具来照顾你的精灵!</p>
+        <p>你的金币: <strong>💰 <span id="shopGold">0</span></strong></p>
+    </div>
+    <div class="shop-categories">
+        <button class="filter-btn active" onclick="filterShop('all',this)">全部</button>
+        <button class="filter-btn" onclick="filterShop('food',this)">🍖 食物</button>
+        <button class="filter-btn" onclick="filterShop('medicine',this)">💊 药品</button>
+        <button class="filter-btn" onclick="filterShop('special',this)">✨ 特殊</button>
+    </div>
+    <div class="shop-grid" id="shopGrid"></div>
+    <!-- 使用物品选择精灵 -->
+    <div id="useItemModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeUseItem()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeUseItem()">✕</button>
+            <h3 id="useItemTitle">对谁使用?</h3>
+            <div class="card-grid" id="useItemGrid"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 设置 ===== -->
+<section id="page-settings" class="page">
+    <div class="page-header">
+        <h2>⚙️ 设置</h2>
+    </div>
+    <div class="settings-card">
+        <h3>🎨 图像生成设置</h3>
+        <p class="settings-desc">默认使用 Pollinations AI 免费接口。你也可以填写自己的API Key获得优先生成权。</p>
+        <div class="form-group">
+            <label>API Key (可选)</label>
+            <input type="text" id="apiKeyInput" placeholder="留空使用免费接口">
+        </div>
+        <div class="form-group">
+            <label>图像模型</label>
+            <select id="modelSelect">
+                <option value="flux">Flux (默认)</option>
+                <option value="flux-realism">Flux Realism (写实)</option>
+                <option value="flux-anime">Flux Anime (动漫)</option>
+                <option value="flux-3d">Flux 3D (3D风格)</option>
+                <option value="turbo">Turbo (快速)</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
+        <div class="settings-actions">
+            <button class="btn btn-secondary" onclick="exportSave()">📤 导出存档</button>
+            <button class="btn btn-secondary" onclick="importSave()">📥 导入存档</button>
+            <button class="btn btn-danger" onclick="resetAll()">🗑️ 重置所有数据</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 精灵详情弹窗 ===== -->
+<div id="petModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closePetModal()"></div>
+    <div class="modal-content pet-detail-modal">
+        <button class="modal-close" onclick="closePetModal()">✕</button>
+        <div class="detail-layout">
+            <div class="detail-left">
+                <div class="detail-img-wrap">
+                    <img id="dImg" class="detail-img" alt="">
+                    <div class="detail-stage-badge" id="dStageBadge"></div>
+                    <div class="detail-element" id="dElement"></div>
+                </div>
+                <div class="detail-action-grid">
+                    <button class="action-btn" onclick="petAct('feed')"><span class="ai">🍖</span><span>喂食</span></button>
+                    <button class="action-btn" onclick="petAct('play')"><span class="ai">🎾</span><span>玩耍</span></button>
+                    <button class="action-btn" onclick="petAct('sleep')"><span class="ai">💤</span><span>休息</span></button>
+                    <button class="action-btn" onclick="petAct('train')"><span class="ai">⚔️</span><span>训练</span></button>
+                    <button class="action-btn" onclick="petAct('work')"><span class="ai">💼</span><span>打工</span></button>
+                    <button class="action-btn" onclick="petAct('refresh')"><span class="ai">🎨</span><span>刷外观</span></button>
+                </div>
+            </div>
+            <div class="detail-right">
+                <h2 id="dName"></h2>
+                <div class="detail-title" id="dTitle"></div>
+                <div class="detail-type-row" id="dTypes"></div>
+                <p class="detail-desc" id="dDesc"></p>
+                <div class="detail-stats" id="dStats"></div>
+                <div class="detail-level" id="dLevel"></div>
+                <div class="evo-preview" id="evoPreview">
+                    <h4>🌟 五阶进化预览</h4>
+                    <div class="evo-stages" id="evoStages"></div>
+                </div>
+                <div class="action-log-wrap">
+                    <h4>📝 最近互动</h4>
+                    <div class="log-list" id="dLog"></div>
+                </div>
+                <div class="detail-bottom">
+                    <button class="btn btn-secondary" onclick="renamePet()">✏️ 改名</button>
+                    <button class="btn btn-danger" onclick="releasePet()">🕊️ 放生</button>
+                </div>
+            </div>
+        </div>
+        <!-- 动态图区 -->
+        <div id="dynamicArea" class="dynamic-area hidden">
+            <h3>✨ 精灵不同姿态</h3>
+            <div class="dynamic-frames" id="dynFrames"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 领养弹窗 -->
+<div id="adoptModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeAdopt()"></div>
+    <div class="modal-content adopt-modal">
+        <div class="adopt-celeb">🎉</div>
+        <h2>领养成功!</h2>
+        <div class="adopt-preview"><img id="adoptImg" alt=""></div>
+        <p id="adoptMsg"></p>
+        <div class="form-group">
+            <label>给精灵取名:</label>
+            <input type="text" id="adoptName" placeholder="输入昵称" maxlength="20">
+        </div>
+        <button class="btn btn-primary" onclick="confirmAdopt()" style="width:100%">✨ 确认领养</button>
+    </div>
+</div>
+
+<!-- 融合结果弹窗 -->
+<div id="mergeResultModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeMergeResult()"></div>
+    <div class="modal-content adopt-modal">
+        <div class="adopt-celeb">⚗️</div>
+        <h2 id="mergeTitle">融合成功!</h2>
+        <div class="adopt-preview"><img id="mergeImg" alt=""></div>
+        <p id="mergeMsg"></p>
+        <div class="form-group">
+            <label>给新精灵取名:</label>
+            <input type="text" id="mergeName" placeholder="输入昵称" maxlength="20">
+        </div>
+        <button class="btn btn-primary" onclick="confirmMerge()" style="width:100%">✨ 确认</button>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toastWrap" class="toast-wrap"></div>
+
+<!-- 页脚 -->
+<footer class="site-footer">
+    <div class="footer-content">
+        <div class="footer-brand">🌟 精灵宠物世界 V2.0</div>
+        <div class="footer-credit">
+            <p>💜 图像生成由 <a href="https://pollinations.ai" target="_blank" rel="noopener">Pollinations AI</a> 免费提供支持</p>
+            <p>感谢 Pollinations AI 提供强大、免费、无需注册的AI图像生成服务，让每只精灵都栩栩如生!</p>
+        </div>
+        <div class="footer-links">
+            <a href="https://pollinations.ai" target="_blank">Pollinations 官网</a>
+            <span>·</span>
+            <a href="https://github.com/pollinations/pollinations" target="_blank">GitHub</a>
+        </div>
+    </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
